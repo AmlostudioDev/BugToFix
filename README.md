@@ -16,3 +16,5 @@ Replace TrackBarTest.Font by what you wan't like new Font("Arial",12f,FontStyle.
 TrackBarTest.ValueToShow: 0 = Normal View of values to see with the KeyValuePair<br/>
                           1 = View the Percentage<br/>
 //----------------------------------------------------------------------------------//<br/>
+
+Add the McTrackbar.cs in your project and change the namespace 
