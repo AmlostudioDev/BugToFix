@@ -123,7 +123,7 @@ namespace MCPU.Components
                 float deplacement = newMousePosition.X - LastMousePosition.X;
                 LastMousePosition = this.PointToClient(Cursor.Position);
 
-                if (BarPosition.X + deplacement + BarSize / 2 <= Width)
+                if (BarPosition.X + deplacement /*+ BarSize / 2*/ <= Width)
                 {
                     Value = BarPercentToValue;
                     Barposition = new PointF(BarPosition.X + deplacement, 0);
