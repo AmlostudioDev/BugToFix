@@ -25,11 +25,7 @@ namespace MCPU.Components
         private PointF Barposition 
         { 
             get { return BarPosition; } 
-            set 
-            {
-                if (value.X + BarSize + 1 > Width || value.X < 1) { }
-                else { BarPosition = value; Invalidate(); }
-            } 
+            set { BarPosition = value; Invalidate(); } 
         }   
         private bool MouseInside = false;
         private bool Mousedown = false;
@@ -37,12 +33,12 @@ namespace MCPU.Components
         public List<KeyValuePair<int, string>> Data = new List<KeyValuePair<int, string>>();
         //-----------//
         public float ValuePercent { get { return (Value - ValueMin) / (ValueMax - ValueMin) * 100; } }
-        int BarSize { get { return 21 + (black_borders_range * 2); } set { BarSize = value; } }
+        SizeF BarSize { get { return new SizeF(21 + (black_borders_range * 2),this.Height); } set { BarSize = value; } }
         public float Value { get; set; } //????
         public float ValueMin { get; set; } //30
         public float ValueMax { get; set; } //90
         private float BarPercentToValue { get { return Convert.ToInt32(ValueMin + ((ValueMax - ValueMin) * (BarPercent / 100))); } }
-        public float BarPercent { get { return (BarPosition.X + BarSize / 2) / Width * 100; } }  
+        public float BarPercent { get { return (BarPosition.X + BarSize.Width / 2) / Width * 100; } }  
         //----------------//
         public McTrackbar(Size Size,int ValueMin, int ValueMax, int Value, List<KeyValuePair<int,string>> Data)
         {
@@ -56,7 +52,7 @@ namespace MCPU.Components
             this.Size = Size;
             
 
-            float BarPosX = Width / (100 / ValuePercent) - (BarSize / 2);
+            float BarPosX = Width / (100 / ValuePercent) - (BarSize.Width / 2);
             Barposition = new PointF(BarPosX, 0);
         }
        
@@ -84,7 +80,7 @@ namespace MCPU.Components
         private void CheckMouseInsideBar()
         {
             var relativePoint = this.PointToClient(Cursor.Position);
-            if (relativePoint.X >= BarPosition.X && relativePoint.X <= BarPosition.X + BarSize &&
+            if (relativePoint.X >= BarPosition.X && relativePoint.X <= BarPosition.X + BarSize.Width &&
                 relativePoint.Y >= BarPosition.Y && relativePoint.Y <= BarPosition.Y + Height)
             {
                 MouseInside = true;
@@ -108,7 +104,7 @@ namespace MCPU.Components
                 float deplacement = LastMousePosition.X - newMousePosition.X;
                 LastMousePosition = this.PointToClient(Cursor.Position);
 
-                if (BarPosition.X - deplacement /*- BarSize / 2*/ >= 1)
+                if (BarPosition.X - deplacement >= 0 - BarSize.Width / 2)
                 {
                     Value = BarPercentToValue;
                     Barposition = new PointF(BarPosition.X - deplacement, 0);
@@ -123,7 +119,7 @@ namespace MCPU.Components
                 float deplacement = newMousePosition.X - LastMousePosition.X;
                 LastMousePosition = this.PointToClient(Cursor.Position);
 
-                if (BarPosition.X + deplacement + BarSize / 2 <= Width)
+                if (BarPosition.X + deplacement + BarSize.Width / 2 <= Width - BarSize.Width / 2)
                 {
                     Value = BarPercentToValue;
                     Barposition = new PointF(BarPosition.X + deplacement, 0);
@@ -158,38 +154,43 @@ namespace MCPU.Components
 
             RectangleF Bar = new RectangleF
             {
-                Location = new PointF(BarPosition.X, BarPosition.Y),
-                Size = new Size(BarSize, Height)
+                Location = BarPosition,
+                Size = BarSize
             };
             RectangleF Bar_black_borders = new RectangleF
             {
-                Location = new PointF(BarPosition.X, BarPosition.Y),
+                Location = Bar.Location,
                 Size = new SizeF(Bar.Width - 1, Bar.Height - 1)
             };
             RectangleF Bar_Middle = new RectangleF
             {
-                Location = new PointF(BarPosition.X + BarSize/2, BarPosition.Y),
+                Location = new PointF(Bar.X + Bar.Width/2, BarPosition.Y),
                 Size = new SizeF(1, Bar.Height)
+            };
+            RectangleF Bar_Middle2 = new RectangleF
+            {
+                Location = new PointF(Bar.X, Bar.Y + Bar.Height/2),
+                Size = new SizeF(Bar.Width, 1)
             };
             RectangleF Line1 = new RectangleF
             {
-                Location = new PointF(Bar.Location.X + black_borders_range, Bar.Location.Y + black_borders_range),
+                Location = new PointF(Bar.X + black_borders_range, Bar.Y + black_borders_range),
                 Size = new SizeF(Bar.Width - black_borders_range, Line1_range)
             };
             RectangleF Line1_2 = new RectangleF
             {
-                Location = new PointF(Bar.Location.X + black_borders_range, Bar.Location.Y + black_borders_range + Line1_range),
+                Location = new PointF(Bar.X + black_borders_range, Bar.Y + black_borders_range + Line1_range),
                 Size = new SizeF(Line1_range, Bar.Height - Line1_range)
             };
 
             RectangleF Line2 = new RectangleF
             {
-                Location = new PointF(Bar.Location.X + black_borders_range, Bar.Location.Y + Bar.Height - black_borders_range - Line2_range),
+                Location = new PointF(Bar.X + black_borders_range, Bar.Y + Bar.Height - black_borders_range - Line2_range),
                 Size = new SizeF(Bar.Width - black_borders_range, Line2_range)
             };
             RectangleF Line2_2 = new RectangleF
             {
-                Location = new PointF(Bar.Location.X + Bar.Width - black_borders_range - Line2_range2, Bar.Location.Y + black_borders_range - 1),
+                Location = new PointF(Bar.X + Bar.Width - black_borders_range - Line2_range2, Bar.Y + black_borders_range - 1),
                 Size = new SizeF(Line2_range, Bar.Height - Line2_range2)
             };
             base.OnPaint(e);
@@ -199,8 +200,7 @@ namespace MCPU.Components
             e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(60 * 255 / 100, 160, 160, 160)), Line1_2);
             e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(85 * 255 / 100, 86, 86, 86)), Line2);
             e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(85 * 255 / 100, 86, 86, 86)), Line2_2);
-            e.Graphics.FillRectangle(new SolidBrush(Color.Red), Bar_Middle);
-
+            
             if (MouseInside)
             {
                 //Draw MouseEnter
@@ -235,6 +235,10 @@ namespace MCPU.Components
                 DrawText = "Fov " + BarPercent.ToString() + " %";
             }
             TextRenderer.DrawText(e.Graphics, DrawText, Font, new Point(Width, Height / 2), ForeColor, flags);
+
+
+            e.Graphics.FillRectangle(new SolidBrush(Color.Red), Bar_Middle);
+            e.Graphics.FillRectangle(new SolidBrush(Color.Red), Bar_Middle2);
         }
     }
 }
