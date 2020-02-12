@@ -1,5 +1,11 @@
 For declare the control:
 
+using System.Collections.Generic;
+using System.Windows.Forms;
+using System.Drawing;
+
+
+
 var Data = new KeyValuePair<int, string>();<br/>
 var list = new List<Data>();<br/>
 list.Add(new Data(30, "Minimal"));<br/>
