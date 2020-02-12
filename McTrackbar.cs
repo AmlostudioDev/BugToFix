@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -37,7 +37,7 @@ namespace MCPU.Components
         public List<KeyValuePair<int, string>> Data = new List<KeyValuePair<int, string>>();
         //-----------//
         public float ValuePercent { get { return (Value - ValueMin) / (ValueMax - ValueMin) * 100; } }
-        int BarSize { get { return 20 + (black_borders_range * 2); } set { BarSize = value; } }
+        int BarSize { get { return 21 + (black_borders_range * 2); } set { BarSize = value; } }
         public float Value { get; set; } //????
         public float ValueMin { get; set; } //30
         public float ValueMax { get; set; } //90
@@ -123,7 +123,7 @@ namespace MCPU.Components
                 float deplacement = newMousePosition.X - LastMousePosition.X;
                 LastMousePosition = this.PointToClient(Cursor.Position);
 
-                if (BarPosition.X + deplacement /*+ BarSize / 2*/ <= Width)
+                if (BarPosition.X + deplacement + BarSize / 2 <= Width)
                 {
                     Value = BarPercentToValue;
                     Barposition = new PointF(BarPosition.X + deplacement, 0);
@@ -166,6 +166,11 @@ namespace MCPU.Components
                 Location = new PointF(BarPosition.X, BarPosition.Y),
                 Size = new SizeF(Bar.Width - 1, Bar.Height - 1)
             };
+            RectangleF Bar_Middle = new RectangleF
+            {
+                Location = new PointF(BarPosition.X + BarSize/2, BarPosition.Y),
+                Size = new SizeF(1, Bar.Height)
+            };
             RectangleF Line1 = new RectangleF
             {
                 Location = new PointF(Bar.Location.X + black_borders_range, Bar.Location.Y + black_borders_range),
@@ -194,6 +199,7 @@ namespace MCPU.Components
             e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(60 * 255 / 100, 160, 160, 160)), Line1_2);
             e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(85 * 255 / 100, 86, 86, 86)), Line2);
             e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(85 * 255 / 100, 86, 86, 86)), Line2_2);
+            e.Graphics.FillRectangle(new SolidBrush(Color.Red), Bar_Middle);
 
             if (MouseInside)
             {
