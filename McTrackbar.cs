@@ -38,8 +38,10 @@ namespace MCPU.Components
         public float ValueMin { get; set; } //30
         public float ValueMax { get; set; } //90
         private float BarPercentToValue { get { return Convert.ToInt32(ValueMin + ((ValueMax - ValueMin) * (BarPercent / 100))); } }
-        public float BarPercent { get { return (BarPosition.X + BarSize.Width / 2) / Width * 100; } }  
-        //----------------//
+        //public float BarPercent { get { return (BarPosition.X + BarSize.Width / 2) / Width * 100; } }  
+        public float BarPercent { get { return ((BarPosition.X * this.Location.X) / (Width +this.Location.X) + BarPosition.X) / Width * 100; } }
+        //public float BarPercent { get { return ((BarPosition.X - 30) * 50 / (Width / 2)) * (BarSize.Width / 2) / 50; } }
+            //----------------//
         public McTrackbar(Size Size,int ValueMin, int ValueMax, int Value, List<KeyValuePair<int,string>> Data)
         {
             this.ForeColor = Color.White;
@@ -104,7 +106,7 @@ namespace MCPU.Components
                 float deplacement = LastMousePosition.X - newMousePosition.X;
                 LastMousePosition = this.PointToClient(Cursor.Position);
 
-                if (BarPosition.X - deplacement >= 0 - BarSize.Width / 2)
+                if (BarPosition.X - deplacement >= 0)
                 {
                     Value = BarPercentToValue;
                     Barposition = new PointF(BarPosition.X - deplacement, 0);
@@ -119,7 +121,7 @@ namespace MCPU.Components
                 float deplacement = newMousePosition.X - LastMousePosition.X;
                 LastMousePosition = this.PointToClient(Cursor.Position);
 
-                if (BarPosition.X + deplacement + BarSize.Width / 2 <= Width - BarSize.Width / 2)
+                if (BarPosition.X + deplacement + BarSize.Width / 2 <= (Width - BarSize.Width / 2))
                 {
                     Value = BarPercentToValue;
                     Barposition = new PointF(BarPosition.X + deplacement, 0);
@@ -149,7 +151,7 @@ namespace MCPU.Components
 
             RectangleF black_borders = new RectangleF {
                 Location = new Point(1, 1),
-                Size = new Size(Width - black_borders_range - 1, Height - black_borders_range)
+                Size = new Size(Width - black_borders_range, Height - black_borders_range)
             };
 
             RectangleF Bar = new RectangleF
@@ -192,6 +194,11 @@ namespace MCPU.Components
             {
                 Location = new PointF(Bar.X + Bar.Width - black_borders_range - Line2_range2, Bar.Y + black_borders_range - 1),
                 Size = new SizeF(Line2_range, Bar.Height - Line2_range2)
+            };
+            RectangleF CalculatedLine = new RectangleF
+            {
+                Location = new PointF((Bar.X*(BarSize.Width+ black_borders_range)) / (Width + BarSize.Width+ black_borders_range) + Bar.X+1, 0),
+                Size = new SizeF(1, Height)
             };
             base.OnPaint(e);
             e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(100 * 255 / 100, 43, 43, 43)), 0, 0, Width, Height);
@@ -239,6 +246,7 @@ namespace MCPU.Components
 
             e.Graphics.FillRectangle(new SolidBrush(Color.Red), Bar_Middle);
             e.Graphics.FillRectangle(new SolidBrush(Color.Red), Bar_Middle2);
+            e.Graphics.FillRectangle(new SolidBrush(Color.Blue), CalculatedLine);
         }
     }
 }
